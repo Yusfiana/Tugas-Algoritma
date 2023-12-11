@@ -10,26 +10,12 @@ struct BarangTerjual {
 fn tambah_barang_terjual(daftar_barang_terjual: &mut Vec<BarangTerjual>) {
     println!("Tambah Barang Terjual");
 
-    println!("Masukkan Kode Barang:");
-    let mut kode_barang = String::new();
-    io::stdin()
-        .read_line(&mut kode_barang)
-        .expect("Gagal membaca kode barang");
-
-    println!("Masukkan Nama Barang:");
-    let mut nama_barang = String::new();
-    io::stdin()
-        .read_line(&mut nama_barang)
-        .expect("Gagal membaca nama barang");
+    let kode_barang = get_user_input("Masukkan Kode Barang");
+    let nama_barang = get_user_input("Masukkan Nama Barang");
 
     let jumlah: u32 = loop {
-        println!("Masukkan Jumlah Barang:");
-        let mut input = String::new();
-        io::stdin()
-            .read_line(&mut input)
-            .expect("Gagal membaca jumlah barang");
-
-        match input.trim().parse() {
+        let input = get_user_input("Masukkan Jumlah Barang");
+        match input.trim().parse::<u32>() {
             Ok(value) => break value,
             Err(_) => println!("Jumlah barang harus berupa angka. Silahkan coba lagi."),
         }
@@ -48,9 +34,79 @@ fn tambah_barang_terjual(daftar_barang_terjual: &mut Vec<BarangTerjual>) {
 fn tampilkan_barang_terjual(daftar_barang_terjual: &Vec<BarangTerjual>) {
     println!("Data Barang Terjual");
 
-    for barang_terjual in daftar_barang_terjual {
-        println!("{:?}", barang_terjual);
+    for (index, barang_terjual) in daftar_barang_terjual.iter().enumerate() {
+        println!("{}. {:?}", index + 1, barang_terjual);
     }
+}
+
+fn edit_barang_terjual(daftar_barang_terjual: &mut Vec<BarangTerjual>) {
+    println!("Edit Barang Terjual");
+
+    if daftar_barang_terjual.is_empty() {
+        println!("Daftar barang terjual kosong. Tidak ada yang dapat diedit.");
+        return;
+    }
+
+    tampilkan_barang_terjual(daftar_barang_terjual);
+
+    let index: usize = loop {
+        let input = get_user_input("Masukkan nomor barang yang ingin diedit (0 untuk batal)");
+        match input.trim().parse::<usize>() {
+            Ok(value) if value == 0 => return,
+            Ok(value) if value <= daftar_barang_terjual.len() => break value - 1,
+            _ => println!("Nomor barang tidak valid. Silahkan coba lagi."),
+        }
+    };
+
+    let mut barang_terjual = &mut daftar_barang_terjual[index];
+
+    println!("Masukkan informasi baru:");
+
+    barang_terjual.kode_barang = get_user_input("Masukkan Kode Barang").trim().to_string();
+    barang_terjual.nama_barang = get_user_input("Masukkan Nama Barang").trim().to_string();
+
+    let jumlah: u32 = loop {
+        let input = get_user_input("Masukkan Jumlah Barang");
+        match input.trim().parse::<u32>() {
+            Ok(value) => break value,
+            Err(_) => println!("Jumlah barang harus berupa angka. Silahkan coba lagi."),
+        }
+    };
+
+    barang_terjual.jumlah = jumlah;
+
+    println!("Barang berhasil diubah!");
+}
+
+fn hapus_barang_terjual(daftar_barang_terjual: &mut Vec<BarangTerjual>) {
+    println!("Hapus Barang Terjual");
+
+    if daftar_barang_terjual.is_empty() {
+        println!("Daftar barang terjual kosong. Tidak ada yang dapat dihapus.");
+        return;
+    }
+
+    tampilkan_barang_terjual(daftar_barang_terjual);
+
+    let index: usize = loop {
+        let input = get_user_input("Masukkan nomor barang yang ingin dihapus (0 untuk batal)");
+        match input.trim().parse::<usize>() {
+            Ok(value) if value == 0 => return,
+            Ok(value) if value <= daftar_barang_terjual.len() => break value - 1,
+            _ => println!("Nomor barang tidak valid. Silahkan coba lagi."),
+        }
+    };
+
+    daftar_barang_terjual.remove(index);
+
+    println!("Barang berhasil dihapus!");
+}
+
+fn get_user_input(prompt: &str) -> String {
+    println!("{}", prompt);
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).expect("Gagal membaca input");
+    input.trim().to_string()
 }
 
 fn main() {
@@ -60,22 +116,23 @@ fn main() {
         println!("Menu:");
         println!("1. Tambah Barang Terjual");
         println!("2. Tampilkan Barang Terjual");
-        println!("3. Keluar");
+        println!("3. Edit Barang Terjual");
+        println!("4. Hapus Barang Terjual");
+        println!("5. Keluar");
         println!("Enter your choice:");
 
-        let mut pilihan = String::new();
-        io::stdin()
-            .read_line(&mut pilihan)
-            .expect("Gagal membaca pilihan");
-
+        let pilihan = get_user_input("Enter your choice");
         match pilihan.trim().parse() {
             Ok(1) => tambah_barang_terjual(&mut daftar_barang_terjual),
             Ok(2) => tampilkan_barang_terjual(&daftar_barang_terjual),
-            Ok(3) => {
+            Ok(3) => edit_barang_terjual(&mut daftar_barang_terjual),
+            Ok(4) => hapus_barang_terjual(&mut daftar_barang_terjual),
+            Ok(5) => {
                 println!("Keluar dari program. Selamat tinggal!");
                 break;
             }
             _ => println!("Pilihan tidak valid. Silahkan coba lagi."),
         }
     }
+
 }
