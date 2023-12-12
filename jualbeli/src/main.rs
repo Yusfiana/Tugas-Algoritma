@@ -1,5 +1,5 @@
 use std::io;
-
+use cli_tables::Table;
 #[derive(Debug)]
 struct BarangTerjual {
     kode_barang: String,
@@ -10,11 +10,11 @@ struct BarangTerjual {
 fn tambah_barang_terjual(daftar_barang_terjual: &mut Vec<BarangTerjual>) {
     println!("Tambah Barang Terjual");
 
-    let kode_barang = get_user_input("Masukkan Kode Barang");
-    let nama_barang = get_user_input("Masukkan Nama Barang");
+    let kode_barang: String = get_user_input("Masukkan Kode Barang");
+    let nama_barang: String = get_user_input("Masukkan Nama Barang");
 
     let jumlah: u32 = loop {
-        let input = get_user_input("Masukkan Jumlah Barang");
+        let input: String = get_user_input("Masukkan Jumlah Barang");
         match input.trim().parse::<u32>() {
             Ok(value) => break value,
             Err(_) => println!("Jumlah barang harus berupa angka. Silahkan coba lagi."),
@@ -31,13 +31,33 @@ fn tambah_barang_terjual(daftar_barang_terjual: &mut Vec<BarangTerjual>) {
     println!("Barang berhasil ditambahkan ke daftar terjual!");
 }
 
-fn tampilkan_barang_terjual(daftar_barang_terjual: &Vec<BarangTerjual>) {
-    println!("Data Barang Terjual");
 
-    for (index, barang_terjual) in daftar_barang_terjual.iter().enumerate() {
+
+
+fn tampilkan_barang_terjual(daftar_barang_terjual: &[BarangTerjual]) {
+    println!("Data Barang Terjual");
+    let mut table = Table::new();
+    for (index, barang_terjual) in daftar_barang_terjual.iter().enumerate()
+     {
         println!("{}. {:?}", index + 1, barang_terjual);
     }
+    let values = vec![
+            vec!["No", "Kode Barang", "Nama Barang", "Jumlah"],
+            vec!["1", "123", "sabun", "20"]
+            
+            
+
+];
+    table.push_rows(&values);
+    
+      println!("{}", table.to_string());
+
 }
+
+
+
+
+
 
 fn edit_barang_terjual(daftar_barang_terjual: &mut Vec<BarangTerjual>) {
     println!("Edit Barang Terjual");
@@ -50,7 +70,7 @@ fn edit_barang_terjual(daftar_barang_terjual: &mut Vec<BarangTerjual>) {
     tampilkan_barang_terjual(daftar_barang_terjual);
 
     let index: usize = loop {
-        let input = get_user_input("Masukkan nomor barang yang ingin diedit (0 untuk batal)");
+        let input: String = get_user_input("Masukkan nomor barang yang ingin diedit (0 untuk batal)");
         match input.trim().parse::<usize>() {
             Ok(value) if value == 0 => return,
             Ok(value) if value <= daftar_barang_terjual.len() => break value - 1,
@@ -58,7 +78,7 @@ fn edit_barang_terjual(daftar_barang_terjual: &mut Vec<BarangTerjual>) {
         }
     };
 
-    let mut barang_terjual = &mut daftar_barang_terjual[index];
+    let barang_terjual = &mut daftar_barang_terjual[index];
 
     println!("Masukkan informasi baru:");
 
@@ -66,7 +86,7 @@ fn edit_barang_terjual(daftar_barang_terjual: &mut Vec<BarangTerjual>) {
     barang_terjual.nama_barang = get_user_input("Masukkan Nama Barang").trim().to_string();
 
     let jumlah: u32 = loop {
-        let input = get_user_input("Masukkan Jumlah Barang");
+        let input: String = get_user_input("Masukkan Jumlah Barang");
         match input.trim().parse::<u32>() {
             Ok(value) => break value,
             Err(_) => println!("Jumlah barang harus berupa angka. Silahkan coba lagi."),
@@ -89,7 +109,7 @@ fn hapus_barang_terjual(daftar_barang_terjual: &mut Vec<BarangTerjual>) {
     tampilkan_barang_terjual(daftar_barang_terjual);
 
     let index: usize = loop {
-        let input = get_user_input("Masukkan nomor barang yang ingin dihapus (0 untuk batal)");
+        let input: String = get_user_input("Masukkan nomor barang yang ingin dihapus (0 untuk batal)");
         match input.trim().parse::<usize>() {
             Ok(value) if value == 0 => return,
             Ok(value) if value <= daftar_barang_terjual.len() => break value - 1,
@@ -121,8 +141,8 @@ fn main() {
         println!("5. Keluar");
         println!("Enter your choice:");
 
-        let pilihan = get_user_input("Enter your choice");
-        match pilihan.trim().parse() {
+        let pilihan: String = get_user_input("Enter your choice");
+        match pilihan.trim().parse::<u32>() {
             Ok(1) => tambah_barang_terjual(&mut daftar_barang_terjual),
             Ok(2) => tampilkan_barang_terjual(&daftar_barang_terjual),
             Ok(3) => edit_barang_terjual(&mut daftar_barang_terjual),
@@ -134,5 +154,4 @@ fn main() {
             _ => println!("Pilihan tidak valid. Silahkan coba lagi."),
         }
     }
-
 }
